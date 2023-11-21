@@ -177,11 +177,9 @@ async def run():
   parser.add_argument('--openai-api-key', type=str, required=True)
   args = parser.parse_args()
 
-
   openai = OpenAI(api_key=args.openai_api_key)
 
   coloredlogs.install(fmt='%(levelname)s %(asctime)s %(name)s %(message)s', level=logging.DEBUG)
-
 
   functions = [
     Function(
