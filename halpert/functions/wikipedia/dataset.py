@@ -52,6 +52,9 @@ async def load_sample(page_id: int, language: str = 'en') -> Dict:
         el.extract()
       for el in soup.find_all(class_='mw-editsection'):
         el.extract()
+      for el in soup.find_all(class_='new'):
+        el.name = 'span'
+        el.attrs = {}
       
       md = MarkdownConverter(strip=['img'], heading_style=ATX).convert_soup(soup)
       md = re.sub(r'\n\n+', '\n\n', md).strip()

@@ -20,7 +20,7 @@ class Halpert:
     for index, sample in enumerate(self.samples):
       evaluation = self.evaluations[index]
       quiz_answers_correct = [
-        sample.expected.quiz[i].answer == evaluation.quiz[i].answer
+        sample.expected.quiz[i].answer == (evaluation.quiz[i].answer if i < len(evaluation.quiz) else None)
         for i in range(len(sample.expected.quiz))
       ]
 
@@ -31,7 +31,7 @@ class Halpert:
 
   def iter(self) -> List[Tuple[Sample, List[Function]]]:
     return [
-      (sample, [f for f in self.functions if f.name in sample.functions])
+      (sample, [f for f in self.functions if f.slug in sample.functions])
       for sample in self.samples
     ]
   

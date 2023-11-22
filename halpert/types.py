@@ -1,16 +1,20 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import List, Dict, Callable, Awaitable
+from pydantic.dataclasses import dataclass
+from typing import List, Dict, Callable, Awaitable, Type
 
 @dataclass
 class Function(ABC):
   name: str
   description: str
 
-  input_schema: Dict
-  output_schema: Dict
+  Input: Type[dataclass]
+  Output: Type[dataclass]
 
-  call: Callable[[Dict], Awaitable[Dict]]
+  call: Callable[[dataclass], Awaitable[dataclass]]
+
+  @property
+  def slug(self):
+    return self.name.lower().replace(' ', '_')
 
 
 @dataclass
