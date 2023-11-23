@@ -103,31 +103,46 @@ async def main():
   parser.add_argument('--language', type=str, default='simple')
   parser.add_argument('--log-level', type=str)
   parser.add_argument('--concurrency', type=int, default=10)
+  parser.add_argument('--cache-only', action='store_true')
   parser.add_argument('--limit', type=int)
   args = parser.parse_args()
 
   if args.log_level:
     logging.basicConfig(level=args.log_level)
 
-  tasks = []
-  semaphore = asyncio.Semaphore(args.concurrency)
 
-  count = 0
-  async for page in list_pages(args.language):
-    if args.limit and count >= args.limit:
-      break
+  if args.cache_only:
+    language_cache_dir = os.path.join(cache_dir, args.language)
+    samples = []
 
-    logging.info(f'Loading page #{count}: {page}')
-    async with semaphore:
-      task = asyncio.create_task(load_sample(page, args.language))
-      count += 1
-      tasks.append(task)
-      if len(tasks) >= 10:
-        await asyncio.gather(*tasks)
-        tasks = []
+    file_names = os.listdir(language_cache_dir)
+    if args.limit:
+      file_names = file_names[:args.limit]
+    for file_name in tqdm(file_names):
+      path = os.path.join(language_cache_dir, file_name)
+      logging.info(f'Loading from cache: {path}')
+      samples.append(json.load(open(path)))
+  else:
+    tasks = []
+    semaphore = asyncio.Semaphore(args.concurrency)
+    count = 0
+    async for page in list_pages(args.language):
+      if args.limit and count >= args.limit:
+        break
 
-  if tasks:
-    await asyncio.gather(*tasks)
+      logging.info(f'Loading page #{count}: {page}')
+      async with semaphore:
+        task = asyncio.create_task(load_sample(page, args.language))
+        count += 1
+        tasks.append(task)
+        if len(tasks) >= 10:
+          await asyncio.gather(*tasks)
+          tasks = []
+
+    samples = await asyncio.gather(*tasks)
+
+  dataset = Dataset.from_dict({ k: [s[k] for s in samples] for k in samples[0].keys() })
+  dataset.push_to_hub(f'davidfant/wikipedia-{args.language}')
 
 
 if __name__ == '__main__':
