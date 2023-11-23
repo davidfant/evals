@@ -85,6 +85,7 @@ async def list_pages(language: str = 'en') -> AsyncGenerator[int, None]:
     'format': 'json',
   }
   while True:
+    logging.info(f'Loading pages: {params}')
     async with aiohttp.ClientSession() as session:
       async with session.get(f'https://{language}.wikipedia.org/w/api.php', params=params) as r:
         response = await r.json()

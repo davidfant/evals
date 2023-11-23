@@ -1,16 +1,16 @@
 from abc import ABC, abstractmethod
 from pydantic.dataclasses import dataclass
-from typing import List, Dict, Callable, Awaitable, Type
+from typing import List, Dict, Callable, Awaitable, Type, Any as Dataclass
 
 @dataclass
 class Function(ABC):
   name: str
   description: str
 
-  Input: Type[dataclass]
-  Output: Type[dataclass]
+  Input: Type[Dataclass]
+  Output: Type[Dataclass]
 
-  call: Callable[[dataclass], Awaitable[dataclass]]
+  call: Callable[['Function.Input'], Awaitable['Function.Output']]
 
   @property
   def slug(self):
@@ -32,5 +32,7 @@ class Sample:
   name: str
   instructions: str
   functions: List[str]
-
   expected: Evaluation
+  Input: Type[Dataclass] | None = None
+  input: Dataclass | None = None
+
