@@ -17,7 +17,6 @@ def monkey_patch_function_call(function: Function, sample_idx: int, halpert: 'Ha
 @dataclass
 class Halpert:
   samples: List[Sample]
-  functions: List[Function]
 
   _sample_functions: Dict[int, List[str]] = field(default_factory=dict)
   _sample_quiz: Dict[int, List[Sample.Evaluation.QuizItem]] = field(default_factory=dict)
@@ -25,7 +24,7 @@ class Halpert:
 
   def get_functions(self, sample: Sample) -> List[Function]:
     idx = self.samples.index(sample)
-    functions = [replace(f) for f in self.functions if f.slug in sample.functions]
+    functions = [replace(f) for f in sample.functions]
     for f in functions:
       monkey_patch_function_call(f, idx, self)
     return functions

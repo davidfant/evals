@@ -21,7 +21,6 @@ async def read_page_call(
   input: Input,
   index_name: str = 'wikipedia',
   host: str = 'http://localhost:9200',
-  snippet_size: int = 300,
 ) -> Output:
   async with AsyncElasticsearch([host]) as es:
     slug = input.link.replace('/wiki/', '')

@@ -31,7 +31,7 @@ class Sample:
 
   name: str
   instructions: str
-  functions: List[str]
+  functions: List[Function]
   expected: Evaluation
   Input: Type[Dataclass] | None = None
   input: Dataclass | None = None
