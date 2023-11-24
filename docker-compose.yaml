@@ -45,13 +45,11 @@ services:
       - USER=odoo
       - PASSWORD=odoo
     volumes:
-      # - odoo-data:/var/lib/odoo
-      - ./odoo-data:/var/lib/odoo
+      - ./halpert/functions/odoo/snapshot/data:/var/lib/odoo
 
 volumes:
   elasticsearch-data:
   odoo-db-data:
-  odoo-data:
 
 networks:
   elasticsearch-network:
