@@ -14,16 +14,44 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
     networks:
-      - esnet
+      - elasticsearch-network
+  
+  odoo-db:
+    image: postgres:15
+    ports:
+      - 8070:5432
+    environment:
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_DB=odoo
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+  
+  odoo:
+    image: odoo:17
+    user: root
+    # TODO: should only be run first time
+    # command: -- --init base --database odoo --without-demo all
+    depends_on:
+      - odoo-db
+    ports:
+      - 8069:8069
+    environment:
+      - HOST=odoo-db
+      - USER=odoo
+      - PASSWORD=odoo
+    volumes:
+      # - odoo-data:/var/lib/odoo
+      - ./odoo-data:/var/lib/odoo
 
 volumes:
-  esdata:
-    driver: local
+  elasticsearch-data:
+  odoo-db-data:
+  odoo-data:
 
 networks:
-  esnet:
-    driver: bridge
+  elasticsearch-network:
