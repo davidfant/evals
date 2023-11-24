@@ -1,4 +1,5 @@
 import os
+import subprocess
 import argparse
 import tempfile
 import zipfile
@@ -37,13 +38,13 @@ def restore_database(
   postgres_database_url = '/'.join(odoo_database_url.split('/')[:-1]) + '/postgres'
 
   logger.debug(f'Dropping database {database_name}')
-  os.system(f'psql {postgres_database_url} -c "DROP DATABASE IF EXISTS {database_name} WITH (FORCE)" > /dev/null')
+  subprocess.run(f'psql {postgres_database_url} -c "DROP DATABASE IF EXISTS {database_name} WITH (FORCE)" > /dev/null', shell=True, check=True)
 
   logger.debug(f'Creating database {database_name}')
-  os.system(f'psql {postgres_database_url} -c "CREATE DATABASE {database_name}" > /dev/null')
+  subprocess.run(f'psql {postgres_database_url} -c "CREATE DATABASE {database_name}" > /dev/null', shell=True, check=True)
   
   logger.debug(f'Restoring database from {dump_path}')
-  os.system(f'psql {odoo_database_url} < {dump_path} > /dev/null')
+  subprocess.run(f'psql {odoo_database_url} < {dump_path} > /dev/null', shell=True, check=True)
 
 
 def restore(

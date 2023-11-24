@@ -22,8 +22,9 @@ services:
   
   odoo-db:
     image: postgres:15
-    ports:
-      - 8070:5432
+    container_name: odoo-db
+    # ports:
+    #   - 8070:5432
     environment:
       - POSTGRES_USER=odoo
       - POSTGRES_PASSWORD=odoo
@@ -33,17 +34,15 @@ services:
   
   odoo:
     image: odoo:17
-    user: root
+    container_name: odoo
     # TODO: should only be run first time
-    # command: -- --init base --database odoo --without-demo all
+    # command: -- --init base --database odoo --without-demo all --stop-after-init
     depends_on:
       - odoo-db
     ports:
       - 8069:8069
     environment:
       - HOST=odoo-db
-      - USER=odoo
-      - PASSWORD=odoo
     volumes:
       - ./halpert/functions/odoo/snapshot/data:/var/lib/odoo
 
