@@ -35,7 +35,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--host', type=str, default='http://localhost:8069')
   parser.add_argument('--database', type=str, default='odoo')
-  parser.add_argument('--master-password', type=str, default='c5m8-zdzs-47jf')
+  parser.add_argument('--master-password', type=str, default='odoo')
   parser.add_argument('--name', type=str, required=True)
   parser.add_argument('--snapshot-dir', type=str, required=True)
   args = parser.parse_args()

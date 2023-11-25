@@ -35,7 +35,10 @@ async def send_message_call(input: Input, context: Context) -> Output:
   context.history.append(('input', input.message))
   completion = complete(
     messages=[
-      { 'role': 'system', 'content': f'You are role playing the following persona: {context.persona}. Use the process function to either respond with a message or not when someone sends you a message. Make sure to closely follow the persona.' },
+      {
+        'role': 'system',
+        'content': f'You are role playing the following persona: {context.persona}. Use the process function to either respond with a message or not when someone sends you a message. Make sure to closely follow the persona.',
+      },
       *[{
         'role': 'user' if source == 'input' else 'assistant',
         'content': message,

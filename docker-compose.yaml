@@ -23,8 +23,8 @@ services:
   odoo-db:
     image: postgres:15
     container_name: odoo-db
-    # ports:
-    #   - 8070:5432
+    ports:
+      - 8070:5432
     environment:
       - POSTGRES_USER=odoo
       - POSTGRES_PASSWORD=odoo
@@ -35,8 +35,6 @@ services:
   odoo:
     image: odoo:17
     container_name: odoo
-    # TODO: should only be run first time
-    # command: -- --init base --database odoo --without-demo all --stop-after-init
     depends_on:
       - odoo-db
     ports:
