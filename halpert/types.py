@@ -1,14 +1,15 @@
-from abc import ABC, abstractmethod
-from pydantic.dataclasses import dataclass
-from typing import List, Dict, Callable, Awaitable, Type, Any as Dataclass
+from abc import ABC
+from pydantic import BaseModel
+from typing import List, Callable, Awaitable, Type
 
-@dataclass
-class Function(ABC):
+
+class Function(BaseModel, ABC):
   name: str
   description: str
+  icon: str | None = None
 
-  Input: Type[Dataclass]
-  Output: Type[Dataclass]
+  Input: Type[BaseModel]
+  Output: Type[BaseModel]
 
   call: Callable[['Function.Input'], Awaitable['Function.Output']]
 
@@ -17,12 +18,9 @@ class Function(ABC):
     return self.name.lower().replace(' ', '_')
 
 
-@dataclass
-class Sample:
-  @dataclass
-  class Evaluation:
-    @dataclass
-    class QuizItem:
+class Sample(BaseModel):
+  class Evaluation(BaseModel):
+    class QuizItem(BaseModel):
       question: str
       answer: str
 
@@ -33,6 +31,10 @@ class Sample:
   instructions: str
   functions: List[Function]
   expected: Evaluation
-  Input: Type[Dataclass] | None = None
-  input: Dataclass | None = None
+  Input: Type[BaseModel] | None = None
+  input: BaseModel | None = None
+
+
+class OdooSample(Sample):
+  snapshot: str
 

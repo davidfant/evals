@@ -1,16 +1,14 @@
 from halpert import Function
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel
 
 async def resolve(x):
   return x
 
-@dataclass
-class Input:
+class Input(BaseModel):
   a: int
   b: int
   
-@dataclass
-class Output:
+class Output(BaseModel):
   result: int
 
 add = Function(

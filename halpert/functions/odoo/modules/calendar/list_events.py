@@ -1,23 +1,18 @@
 import arrow
 from halpert import Function
-from pydantic.dataclasses import dataclass
-from pydantic import Field
+from pydantic import BaseModel, Field
 from typing import List
 from ...api import OdooAPI
 
 
-@dataclass
-class Input:
+class Input(BaseModel):
   start_date: str = Field(format='YYYY-MM-DD')
   end_date: str = Field(format='YYYY-MM-DD')
 
 
-@dataclass
-class Output:
-  @dataclass
-  class Event:
-    @dataclass
-    class User:
+class Output(BaseModel):
+  class Event(BaseModel):
+    class User(BaseModel):
       id: int
       name: str
       is_organizer: bool
@@ -38,8 +33,8 @@ async def list_events_call(input: Input) -> Output:
     'calendar.event',
     ['id', 'display_name', 'description', 'start', 'stop', 'partner_ids', 'allday'],
     [
-      OdooAPI.SearchFilter('start', '>=', input.start_date),
-      OdooAPI.SearchFilter('stop', '<', input.end_date),
+      OdooAPI.SearchFilter(field='start', op='>=', value=input.start_date),
+      OdooAPI.SearchFilter(field='stop', op='<', value=input.end_date),
     ]
   )
 
@@ -66,6 +61,7 @@ async def list_events_call(input: Input) -> Output:
 list_events = Function(
   name='List Events',
   description='List events in Odoo Calendar',
+  icon='http://localhost:8069/calendar/static/description/icon.png',
   Input=Input,
   Output=Output,
   call=list_events_call,

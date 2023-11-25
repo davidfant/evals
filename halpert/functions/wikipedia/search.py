@@ -2,17 +2,13 @@ import asyncio
 from elasticsearch import AsyncElasticsearch
 from typing import List
 from halpert.types import Function
-from dataclasses import asdict
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel
 
-@dataclass
-class Input:
+class Input(BaseModel):
   query: str
 
-@dataclass
-class Output:
-  @dataclass
-  class Result:
+class Output(BaseModel):
+  class Result(BaseModel):
     link: str
     title: str
     snippet: str
@@ -67,5 +63,5 @@ if __name__ == '__main__':
   loop = asyncio.get_event_loop()
   results = loop.run_until_complete(search_call(Input(query=args.query), args.index_name, args.host))
   import json
-  print(json.dumps(asdict(results), indent=2))
+  print(json.dumps(results.dict(), indent=2))
   print(len(results))

@@ -1,17 +1,12 @@
-import asyncio
 from elasticsearch import AsyncElasticsearch
-from typing import List
 from halpert.types import Function
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel
 
-@dataclass
-class Input:
+class Input(BaseModel):
   link: str
 
-@dataclass
-class Output:
-  @dataclass
-  class Page:
+class Output(BaseModel):
+  class Page(BaseModel):
     title: str
     content: str
   

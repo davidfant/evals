@@ -1,6 +1,6 @@
 import xmlrpc.client
-from dataclasses import dataclass
-from typing import List, Dict, Any, TypeVar, Type, cast
+from pydantic import BaseModel
+from typing import List, Dict, Any
 
 
 class OdooAPI:
@@ -26,14 +26,13 @@ class OdooAPI:
     return models.execute_kw(self.db, self.user_id, self.password, model, op, args, options)
 
 
-  @dataclass
-  class SearchFilter:
+  class SearchFilter(BaseModel):
     field: str
-    operator: str
+    op: str
     value: Any
 
     def to_odoo(self) -> List[Any]:
-      return [self.field, self.operator, self.value]
+      return [self.field, self.op, self.value]
 
 
   def search_read(
@@ -49,8 +48,7 @@ class OdooAPI:
     )
 
 
-  @dataclass
-  class AttendeeDetail:
+  class AttendeeDetail(BaseModel):
     id: int
     name: str
     status: str

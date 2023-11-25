@@ -1,6 +1,7 @@
-from halpert import Sample
+from halpert import Sample, OdooSample
 import halpert.functions.persona
 import halpert.functions.wikipedia
+import halpert.functions.odoo
 import example.functions
 
 samples = [
@@ -45,6 +46,18 @@ samples = [
       functions=[halpert.functions.persona.send_message.slug],
       quiz=[
         Sample.Evaluation.QuizItem(question='In what city does the friend live?', answer='San Francisco'),
+      ],
+    ),
+  ),
+  OdooSample(
+    snapshot='calendar',
+    name='List Calendar Events',
+    instructions='List calendar events for November 2023',
+    functions=[halpert.functions.odoo.calendar.list_events],
+    expected=Sample.Evaluation(
+      functions=[halpert.functions.odoo.calendar.list_events.slug],
+      quiz=[
+        Sample.Evaluation.QuizItem(question='Who is attending the event on the 22th?', answer='Administrator'),
       ],
     ),
   ),

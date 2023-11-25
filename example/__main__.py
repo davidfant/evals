@@ -3,13 +3,11 @@ import asyncio
 import argparse
 import logging
 import coloredlogs
-from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 from tqdm import tqdm
 from typing import List
 from halpert import Halpert, Sample, Function
 from halpert.util.openai import complete
-from dataclasses import asdict
 from .samples import samples
 
 
@@ -39,7 +37,7 @@ async def run_agent(
         'function': {
           'name': f.slug,
           'description': f.description,
-          'parameters': f.Input.__pydantic_model__.schema(),
+          'parameters': f.Input.schema(),
         },
       } for f in functions] + [{
         'type': 'function',
@@ -73,10 +71,10 @@ async def run_agent(
         messages.append({
           'role': 'tool',
           'tool_call_id': tc.id,
-          'content': json.dumps(asdict(output)),
+          'content': json.dumps(output.dict()),
         })
 
-        logger.info(f'Function call: {fn.slug}({tc.function.arguments}) -> {json.dumps(asdict(output), indent=2)}')
+        logger.info(f'Function call: {fn.slug}({tc.function.arguments}) -> {json.dumps(output.dict(), indent=2)}')
       else:
         logger.warning(f'Unexpected function call: {tc.function.name}')
         looping = False
@@ -124,13 +122,15 @@ async def run():
   args = parser.parse_args()
 
   coloredlogs.install(fmt='%(levelname)s %(asctime)s %(name)s %(message)s', level=logging.DEBUG)
+  logging.getLogger('openai').setLevel(logging.INFO)
+  logging.getLogger('httpx').setLevel(logging.INFO)
 
-  eval = Halpert(samples)
+  eval = Halpert(samples=samples)
   for sample in tqdm(eval.samples):
     sample_functions = eval.get_functions(sample)
     logger.info(f'Running sample: {sample.name}')
     quiz = await run_agent(sample, sample_functions, args.model)
-    logger.info(f'Evaluation: {json.dumps([asdict(q) for q in quiz], indent=2)}')
+    logger.info(f'Quiz: {json.dumps([q.dict() for q in quiz], indent=2)}')
     eval.submit(sample, quiz)
 
   eval.evaluate()

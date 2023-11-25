@@ -1,28 +1,23 @@
 import json
 import logging
-from pydantic.dataclasses import dataclass
-from dataclasses import field, asdict
+from pydantic import BaseModel, Field
 from halpert.types import Function
 from typing import List, Tuple, Literal
 from halpert.util.openai import complete
 
 
-@dataclass
-class Input:
+class Input(BaseModel):
   message: str
 
-@dataclass
-class Output:
+class Output(BaseModel):
   message: str | None
 
-@dataclass
-class Context:
+class Context(BaseModel):
   persona: str
-  history: List[Tuple[Literal['input', 'output'], str]] = field(default_factory=list)
+  history: List[Tuple[Literal['input', 'output'], str]] = Field(default_factory=list)
 
 
-@dataclass
-class PersonaResponse:
+class PersonaResponse(BaseModel):
   reasoning: str
   should_respond: bool
   message: str | None
@@ -49,7 +44,7 @@ async def send_message_call(input: Input, context: Context) -> Output:
       'function': {
         'name': 'process',
         'description': 'Process a message by either responding with a message or not.',
-        'parameters': PersonaResponse.__pydantic_model__.schema(),
+        'parameters': PersonaResponse.schema(),
       }
     }],
     model='gpt-4-1106-preview'
@@ -57,7 +52,7 @@ async def send_message_call(input: Input, context: Context) -> Output:
 
   args = completion.choices[0].message.tool_calls[0].function.arguments
   response = PersonaResponse(**json.loads(args))
-  logger.debug(f'Persona Response: {json.dumps(asdict(response), indent=2)}')
+  logger.debug(f'Persona Response: {json.dumps(response.dict(), indent=2)}')
 
   output = Output(message=response.message)
   if output.message:
