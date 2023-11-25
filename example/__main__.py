@@ -119,15 +119,16 @@ async def run_agent(
 async def run():
   parser = argparse.ArgumentParser()
   parser.add_argument('--model', type=str, default='gpt-4-1106-preview')
+  parser.add_argument('--odoo-snapshot-dir', type=str)
   args = parser.parse_args()
 
   coloredlogs.install(fmt='%(levelname)s %(asctime)s %(name)s %(message)s', level=logging.DEBUG)
   logging.getLogger('openai').setLevel(logging.INFO)
   logging.getLogger('httpx').setLevel(logging.INFO)
 
-  eval = Halpert(samples=samples)
+  eval = Halpert(samples=samples, odoo_snapshot_dir=args.odoo_snapshot_dir)
   for sample in tqdm(eval.samples):
-    sample_functions = eval.get_functions(sample)
+    sample_functions = eval.prepare(sample)
     logger.info(f'Running sample: {sample.name}')
     quiz = await run_agent(sample, sample_functions, args.model)
     logger.info(f'Quiz: {json.dumps([q.dict() for q in quiz], indent=2)}')

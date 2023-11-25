@@ -2,7 +2,7 @@ import os
 import asyncio
 import aiohttp
 import argparse
-
+import logging
 
 async def main(
   odoo_host: str,
@@ -23,22 +23,28 @@ async def main(
       if resp.status != 200:
         raise Exception(f'Failed to create a backup. Status: {resp.status}')
       
+      logging.info(f'Saving backup to: {output_path}')
+      
       with open(output_path, 'wb') as file:
         while True:
           chunk = await resp.content.read(1024)
           if not chunk:
             break
           file.write(chunk)
+      
+      logging.info('Done')
 
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
+  parser.add_argument('--name', type=str, required=True)
+  parser.add_argument('--snapshot-dir', type=str, required=True)
   parser.add_argument('--host', type=str, default='http://localhost:8069')
   parser.add_argument('--database', type=str, default='odoo')
   parser.add_argument('--master-password', type=str, default='odoo')
-  parser.add_argument('--name', type=str, required=True)
-  parser.add_argument('--snapshot-dir', type=str, required=True)
   args = parser.parse_args()
+
+  logging.basicConfig(level=logging.DEBUG)
 
   output_path = os.path.join(args.snapshot_dir, f'{args.name}.zip')
   asyncio.run(main(

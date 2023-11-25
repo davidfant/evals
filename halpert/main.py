@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict, List, Tuple
+from typing import Dict, List
 from .types import Sample, OdooSample, Function
 
 
@@ -16,19 +16,25 @@ def monkey_patch_function_call(function: Function, sample_idx: int, halpert: 'Ha
 
 class Halpert(BaseModel):
   samples: List[Sample]
+  odoo_snapshot_dir: str | None = None
 
   sample_functions_: Dict[int, List[str]] = Field(default_factory=dict)
   sample_quiz_: Dict[int, List[Sample.Evaluation.QuizItem]] = Field(default_factory=dict)
 
 
-  def get_functions(self, sample: Sample) -> List[Function]:
+  def prepare(self, sample: Sample) -> List[Function]:
+    if isinstance(sample, OdooSample):
+      from halpert.functions.odoo.snapshot.restore import restore as restore_odoo_snapshot
+
+      if not self.odoo_snapshot_dir:
+        raise ValueError('odoo_snapshot_dir must be set when using OdooSample')
+      restore_odoo_snapshot(sample.snapshot, self.odoo_snapshot_dir)
+
     idx = self.samples.index(sample)
     functions = [Function(**f.dict()) for f in sample.functions]
     for f in functions:
       monkey_patch_function_call(f, idx, self)
     return functions
-  
-  # TODO: prepare fn
 
 
   def submit(self, sample: Sample, quiz: List[Sample.Evaluation.QuizItem]):

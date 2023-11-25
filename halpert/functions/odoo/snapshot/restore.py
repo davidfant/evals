@@ -54,6 +54,7 @@ def restore(
   odoo_filestore_dir: str = default_filestore_dir,
 ):
   snapshot_path = os.path.join(snapshot_dir, f'{name}.zip')
+  logger.info(f'Restoring snapshot {name} from {snapshot_path}')
 
   with tempfile.TemporaryDirectory() as temp_dir:
     logger.debug(f'Extracting snapshot {snapshot_path} to {temp_dir}')

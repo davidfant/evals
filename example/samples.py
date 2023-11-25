@@ -50,7 +50,8 @@ samples = [
     ),
   ),
   OdooSample(
-    snapshot='calendar',
+    snapshot='cal',
+  # Sample(
     name='List Calendar Events',
     instructions='List calendar events for November 2023',
     functions=[halpert.functions.odoo.calendar.list_events],
