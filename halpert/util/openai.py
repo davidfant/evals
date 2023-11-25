@@ -2,9 +2,14 @@ import os
 import json
 import logging
 import hashlib
-from openai import OpenAI
-from openai.types.chat import ChatCompletionMessageParam, ChatCompletionToolParam, ChatCompletion, ChatCompletionNamedToolChoiceParam
-from typing import List
+import openai
+# from openai import OpenAI
+# from openai.types.chat import ChatCompletionMessageParam, ChatCompletionToolParam, ChatCompletion, ChatCompletionNamedToolChoiceParam
+from typing import List, Dict
+
+ChatCompletionMessageParam = Dict
+ChatCompletionToolParam = Dict
+ChatCompletionNamedToolChoiceParam = str
 
 
 logger = logging.getLogger(__name__)
@@ -35,13 +40,15 @@ def complete(
   tool_choice: ChatCompletionNamedToolChoiceParam | None = None,
 ):
   hash = create_hash(messages, model, tools, tool_choice)
-  cache_path = os.path.join(os.path.expanduser('~'), '.cache', 'halpert', 'openai', f'{hash}.json')
+  cache_path = os.path.join(os.path.expanduser('~'), '.cache', 'halpert', 'openai-0.27.8', f'{hash}.json')
   if os.path.exists(cache_path):
     logger.info(f'Loading from cache: {cache_path}')
     with open(cache_path, 'r') as f:
-      return ChatCompletion(**json.load(f))
+      # return ChatCompletion(**json.load(f))
+      return openai.openai_object.OpenAIObject.construct_from(json.load(f))
 
-  completion = OpenAI().chat.completions.create(
+  # completion = OpenAI().chat.completions.create(
+  completion = openai.ChatCompletion.create(
     messages=messages,
     tools=tools,
     model=model,
@@ -52,5 +59,6 @@ def complete(
   if not os.path.exists(os.path.dirname(cache_path)):
     os.makedirs(os.path.dirname(cache_path))
   with open(cache_path, 'w') as f:
-    json.dump(completion.dict(), f, indent=2)
+    # json.dump(completion.dict(), f, indent=2)
+    json.dump(completion, f, indent=2)
   return completion

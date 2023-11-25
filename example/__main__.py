@@ -3,13 +3,14 @@ import asyncio
 import argparse
 import logging
 import coloredlogs
-from openai.types.chat import ChatCompletionMessageParam
+# from openai.types.chat import ChatCompletionMessageParam
 from tqdm import tqdm
-from typing import List
+from typing import List, Dict
 from halpert import Halpert, Sample, Function
 from halpert.util.openai import complete
 from .samples import samples
 
+ChatCompletionMessageParam = Dict
 
 logger = logging.getLogger('halpert')
 
@@ -49,7 +50,8 @@ async def run_agent(
       }],
     )
 
-    logger.info(f'Agent Step: {completion.json(indent=2)}')
+    # logger.info(f'Agent Step: {completion.json(indent=2)}')
+    logger.info(f'Agent Step: {json.dumps(completion, indent=2)}')
 
     choice = completion.choices[0]
     if choice.finish_reason != 'tool_calls':
@@ -58,7 +60,8 @@ async def run_agent(
 
     messages.append({
       'role': 'assistant',
-      'tool_calls': choice.message.dict()['tool_calls'],
+      # 'tool_calls': choice.message.dict()['tool_calls'],
+      'tool_calls': choice.message['tool_calls'],
     })
 
     for tc in choice.message.tool_calls:
@@ -107,7 +110,8 @@ async def run_agent(
     tool_choice={ 'type': 'function', 'function': { 'name': 'answer' } },
   )
 
-  logger.info(f'Agent Questions: {completion.json(indent=2)}')
+  # logger.info(f'Agent Questions: {completion.json(indent=2)}')
+  logger.info(f'Agent Questions: {json.dumps(completion, indent=2)}')
   answers = json.loads(completion.choices[0].message.tool_calls[0].function.arguments)['answers']
 
   return [

@@ -20,7 +20,7 @@ samples = [
   ),
   Sample(
     name='Search Wikipedia',
-    instructions='Research the year 1092',
+    instructions='Research the year 1092. Do not research anything else.',
     functions=[
       halpert.functions.wikipedia.search,
       halpert.functions.wikipedia.read_page,
@@ -51,7 +51,6 @@ samples = [
   ),
   OdooSample(
     snapshot='cal',
-  # Sample(
     name='List Calendar Events',
     instructions='List calendar events for November 2023',
     functions=[halpert.functions.odoo.calendar.list_events],
