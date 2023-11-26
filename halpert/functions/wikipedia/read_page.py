@@ -1,6 +1,6 @@
 from elasticsearch import AsyncElasticsearch
 from halpert.types import Function
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class Input(BaseModel):
   link: str
@@ -8,7 +8,7 @@ class Input(BaseModel):
 class Output(BaseModel):
   class Page(BaseModel):
     title: str
-    content: str
+    content: str = Field(description='Markdown content')
   
   page: Page | None
 
