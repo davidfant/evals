@@ -19,12 +19,13 @@ class Event(BaseModel):
 
   @classmethod
   def from_api(cls, data: Dict, odoo: OdooAPI):
+    format = 'YYYY-MM-DD HH:mm' if not data['allday'] else 'YYYY-MM-DD'
     return cls(
       id=data['id'],
       name=data['display_name'],
       description=data['description'] or '', # consider stripping HTML
-      start=data['start'] if not data['allday'] else arrow.get(data['start']).format('YYYY-MM-DD'),
-      end=data['stop'] if not data['allday'] else arrow.get(data['stop']).format('YYYY-MM-DD'),
+      start=arrow.get(data['start']).format(format),
+      end=arrow.get(data['stop']).format(format),
       attendees=[
         Event.User(
           id=details.id,

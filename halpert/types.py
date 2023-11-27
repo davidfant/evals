@@ -29,6 +29,7 @@ class Sample(BaseModel):
 
   name: str
   instructions: str
+  date: str = '2023-11-26'
   functions: List[Function]
   expected: Evaluation
   Input: Type[BaseModel] | None = None

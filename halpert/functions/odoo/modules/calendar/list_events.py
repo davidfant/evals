@@ -17,12 +17,14 @@ class Output(BaseModel):
 
 async def list_events_call(input: Input) -> Output:
   odoo = OdooAPI()
+  start_date = arrow.get(input.start_date).floor('day').format('YYYY-MM-DD HH:mm')
+  end_date = arrow.get(input.end_date).ceil('day').format('YYYY-MM-DD HH:mm')
   results = odoo.search_read(
     'calendar.event',
     ['id', 'display_name', 'description', 'start', 'stop', 'partner_ids', 'allday'],
     [
-      OdooAPI.SearchFilter(field='start', op='>=', value=input.start_date),
-      OdooAPI.SearchFilter(field='stop', op='<', value=input.end_date),
+      OdooAPI.SearchFilter(field='start', op='>=', value=start_date),
+      OdooAPI.SearchFilter(field='stop', op='<', value=end_date),
     ]
   )
 

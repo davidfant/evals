@@ -47,16 +47,21 @@ async def send_message_call(input: Input, context: Context) -> Output:
         'parameters': PersonaResponse.schema(),
       }
     }],
-    model='gpt-4-1106-preview'
+    model='gpt-4-1106-preview',
+    tool_choice={ 'type': 'function', 'function': { 'name': 'process' } },
   )
 
-  args = completion.choices[0].message.tool_calls[0].function.arguments
-  response = PersonaResponse(**json.loads(args))
-  logger.debug(f'Persona Response: {json.dumps(response.dict(), indent=2)}')
+  try:
+    args = completion.choices[0].message.tool_calls[0].function.arguments
+    response = PersonaResponse(**json.loads(args))
+    logger.debug(f'Persona Response: {json.dumps(response.dict(), indent=2)}')
+  except:
+    logger.exception(f'Failed to parse persona response: {json.dumps(completion, indent=2)}')
+    raise
 
   output = Output(message=response.message)
   if output.message:
-    context.history.append(('output', input.message))
+    context.history.append(('output', output.message))
   return output
 
 
